@@ -28,11 +28,11 @@ export default function Hero(): ReactElement {
         <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-60">
           <Particles
             particleColors={STAR_COLOURS}
-            particleCount={140}
+            particleCount={120}
             particleSpread={12}
             speed={0.04}
-            particleBaseSize={55}
-            sizeRandomness={0.8}
+            particleBaseSize={110}
+            sizeRandomness={1.1}
             alphaParticles
             moveParticlesOnHover
             particleHoverFactor={0.35}
