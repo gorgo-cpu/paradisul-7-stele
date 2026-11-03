@@ -3,12 +3,21 @@ import { AnimatePresence, motion } from 'motion/react';
 import SectionHeading from './ui/SectionHeading';
 import StarMark from './ui/StarMark';
 import { ArrowIcon, PinIcon } from './ui/Icons';
+import PrivacyPolicyModal from './ui/PrivacyPolicyModal';
 import { CONTACT, OCCASIONS } from '../data/content';
 import { submitEnquiry, validateEnquiry, type Enquiry, type EnquiryErrors } from '../lib/enquiry';
 
 type Status = 'idle' | 'submitting' | 'sent' | 'error';
 
-const EMPTY: Enquiry = { name: '', email: '', phone: '', occasion: '', date: '', message: '' };
+const EMPTY: Enquiry = {
+  name: '',
+  email: '',
+  phone: '',
+  occasion: '',
+  date: '',
+  message: '',
+  privacyConsent: false,
+};
 const LUXE_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* ------------------------------------------------------------------ */
@@ -66,12 +75,15 @@ export default function Contact(): ReactElement {
   const [form, setForm] = useState<Enquiry>(EMPTY);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [status, setStatus] = useState<Status>('idle');
+  const [privacyModalOpen, setPrivacyModalOpen] = useState<boolean>(false);
 
   const fieldId = (name: keyof Enquiry): string => `${uid}-${name}`;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
-    const name = e.target.name as keyof Enquiry;
-    setForm((prev) => ({ ...prev, [name]: e.target.value }));
+    const target = e.target;
+    const name = target.name as keyof Enquiry;
+    const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
+    setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
@@ -202,16 +214,16 @@ export default function Contact(): ReactElement {
                   role="status"
                 >
                   <StarMark className="h-9 w-9 text-champagne" strokeWidth={2} />
-                  <p className="font-display text-2xl font-light text-ivory">Thank you. Your enquiry has been received.</p>
+                  <p className="font-display text-2xl font-light text-ivory">Opening your email app…</p>
                   <p className="text-[0.9rem] leading-[1.8] text-stone">
-                    We will respond personally, with discretion, at the earliest opportunity.
+                    Your details have been pre-filled into your native mail composer. Simply hit Send in your email client to dispatch the enquiry directly to our team.
                   </p>
                   <button
                     type="button"
                     onClick={() => setStatus('idle')}
                     className="text-[0.66rem] tracking-[0.3em] text-champagne uppercase underline underline-offset-8 hover:text-champagne-light"
                   >
-                    Send another enquiry
+                    Edit details or compose again
                   </button>
                 </motion.div>
               ) : (
@@ -306,6 +318,51 @@ export default function Contact(): ReactElement {
                     />
                   </FieldShell>
 
+                  {/* Privacy Policy Consent Agreement */}
+                  <div className="sm:col-span-2 pt-2">
+                    <div className="flex items-start gap-3">
+                      <input
+                        id={fieldId('privacyConsent')}
+                        name="privacyConsent"
+                        type="checkbox"
+                        checked={form.privacyConsent}
+                        onChange={handleChange}
+                        className="mt-1 h-4 w-4 cursor-pointer rounded-none border border-champagne/50 bg-forest-900 text-champagne focus:ring-0 focus:ring-offset-0 focus:outline-none accent-[#c8b07a]"
+                        aria-invalid={errors.privacyConsent ? true : undefined}
+                        aria-describedby={errors.privacyConsent ? `${fieldId('privacyConsent')}-error` : undefined}
+                      />
+                      <label
+                        htmlFor={fieldId('privacyConsent')}
+                        className="cursor-pointer text-[0.82rem] leading-relaxed text-ivory-muted"
+                      >
+                        I agree to the processing of my personal details in accordance with the{' '}
+                        <button
+                          type="button"
+                          onClick={() => setPrivacyModalOpen(true)}
+                          className="text-champagne underline underline-offset-4 transition-colors hover:text-champagne-light"
+                        >
+                          Privacy Policy
+                        </button>
+                        .
+                      </label>
+                    </div>
+                    <AnimatePresence>
+                      {errors.privacyConsent && (
+                        <motion.p
+                          id={`${fieldId('privacyConsent')}-error`}
+                          role="alert"
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.4 }}
+                          className="mt-2 text-[0.72rem] text-[#d9a38f]"
+                        >
+                          {errors.privacyConsent}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
                   <div className="flex flex-col gap-6 pt-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="max-w-xs text-[0.72rem] leading-relaxed text-stone">
                       Your details are used solely to respond to this enquiry, in accordance with GDPR.
@@ -335,6 +392,12 @@ export default function Contact(): ReactElement {
           </div>
         </div>
       </div>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={privacyModalOpen}
+        onClose={() => setPrivacyModalOpen(false)}
+      />
     </section>
   );
 }

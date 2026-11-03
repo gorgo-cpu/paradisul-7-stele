@@ -12,6 +12,7 @@ export interface Enquiry {
   occasion: string;
   date: string;
   message: string;
+  privacyConsent: boolean;
 }
 
 export type EnquiryErrors = Partial<Record<keyof Enquiry, string>>;
@@ -27,25 +28,38 @@ export function validateEnquiry(data: Enquiry): EnquiryErrors {
   }
   if (!data.occasion) errors.occasion = 'Please select the nature of your occasion.';
   if (data.message.trim().length < 10) errors.message = 'Please tell us a little more about your plans.';
+  if (!data.privacyConsent) {
+    errors.privacyConsent = 'You must agree to the Privacy Policy to submit your request.';
+  }
   return errors;
 }
 
 export async function submitEnquiry(data: Enquiry): Promise<void> {
-  const endpoint = import.meta.env.VITE_ENQUIRY_ENDPOINT as string | undefined;
+  const recipient = (import.meta.env.VITE_CONTACT_EMAIL as string | undefined) || 'contact@paradisul7stele.ro';
 
-  if (!endpoint) {
-    await new Promise<void>((resolve) => setTimeout(resolve, 1100));
-    return;
-  }
+  const subject = encodeURIComponent(`Private Viewing Enquiry: ${data.occasion} - ${data.name}`);
+  const bodyText = [
+    `Name: ${data.name}`,
+    `Email: ${data.email}`,
+    data.phone ? `Phone: ${data.phone}` : null,
+    `Occasion: ${data.occasion}`,
+    data.date ? `Preferred Date: ${data.date}` : null,
+    '',
+    'Message / Event Plans:',
+    data.message,
+    '',
+    '---',
+    'Submitted via Paradisul 7 Stele Private Estate Portal',
+  ]
+    .filter((line) => line !== null)
+    .join('\n');
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(data),
-  });
+  const mailtoUrl = `mailto:${recipient}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
 
-  if (!response.ok) {
-    throw new Error(`Enquiry failed with status ${response.status}`);
-  }
+  // Open device's default email client
+  window.location.href = mailtoUrl;
+
+  // Give short delay so UI state smoothly acknowledges action
+  await new Promise<void>((resolve) => setTimeout(resolve, 800));
 }
 

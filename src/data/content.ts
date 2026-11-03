@@ -153,7 +153,7 @@ export const CONTACT: ContactDetails = {
   county: 'Ilfov',
   country: 'România',
   phone: null,
-  email: null,
+  email: 'contact@paradisul7stele.ro',
   mapsUrl:
     'https://www.google.com/maps/search/?api=1&query=Strada+Agromec+14%2C+Moara+Vl%C4%83siei%2C+Ilfov%2C+Romania',
 };
