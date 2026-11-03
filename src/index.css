@@ -1,0 +1,143 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* ------------------------------------------------------------------ */
+/*  Design tokens                                                      */
+/* ------------------------------------------------------------------ */
+@theme {
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  /* Deep forest charcoal — the night sky above Moara Vlăsiei */
+  --color-ink: #0b1210;
+  --color-forest-950: #0d1512;
+  --color-forest-900: #111c18;
+  --color-forest-800: #16251f;
+  --color-forest-700: #1f3a30;
+  --color-forest-500: #3d6b58;
+  --color-forest-300: #8fb3a2;
+
+  /* Soft whites */
+  --color-ivory: #f4f0e8;
+  --color-ivory-muted: #cfc9bc;
+  --color-stone: #8b918a;
+
+  /* Champagne gold accent */
+  --color-champagne: #c8b07a;
+  --color-champagne-light: #e3d3a8;
+  --color-champagne-deep: #9c8653;
+
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-shine: shine 6s linear infinite;
+  --animate-drift: drift 3.2s var(--ease-luxe) infinite;
+
+  @keyframes shine {
+    0% {
+      background-position: 100%;
+    }
+    100% {
+      background-position: -100%;
+    }
+  }
+
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.35;
+    }
+    50% {
+      transform: translateY(10px);
+      opacity: 1;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-padding-top: 5rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-forest-950 font-sans font-light text-ivory;
+  }
+
+  ::selection {
+    @apply bg-champagne/30 text-ivory;
+  }
+
+  :focus-visible {
+    @apply outline outline-1 outline-offset-4 outline-champagne;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply font-sans font-light;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Components                                                         */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .eyebrow {
+    @apply font-sans text-[0.68rem] font-medium uppercase tracking-[0.42em] text-champagne;
+  }
+
+  .hairline {
+    @apply h-px w-12 bg-linear-to-r from-champagne/80 to-transparent;
+  }
+
+  .container-luxe {
+    @apply mx-auto w-full max-w-[1320px] px-6 md:px-10 lg:px-14;
+  }
+
+  .field {
+    @apply w-full border-0 border-b border-ivory/15 bg-transparent px-0 pt-6 pb-3 text-[0.95rem] text-ivory placeholder:text-transparent transition-colors duration-500 focus:border-champagne focus:ring-0 focus:outline-none;
+  }
+
+  .field-label {
+    @apply pointer-events-none absolute top-6 left-0 text-[0.7rem] uppercase tracking-[0.3em] text-stone transition-all duration-500 ease-luxe;
+  }
+
+  .field:focus ~ .field-label,
+  .field:not(:placeholder-shown) ~ .field-label {
+    @apply top-0 text-[0.6rem] text-champagne;
+  }
+
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* GSAP SplitText — keep masked lines from clipping descenders */
+.split-line {
+  padding-bottom: 0.08em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
